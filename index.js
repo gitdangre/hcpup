@@ -13,26 +13,31 @@ async function run() {
   for (let i = 0; i < json.length; i++) {
     try {
       await page.goto(json[i].URL);
-      let data = await page.evaluate(() => {
+      let title = await page.evaluate(() => {
         try {
-          let price = document.querySelector("#book-price").innerText;
-          return price;
+          return document.querySelector("#book-title").innerText;
         } catch {
           return null;
         }
       });
-      // console.log(data);
-      if (data) {
-        await page.screenshot({
-          path: "file/file" + json[i].Record + ".jpeg",
-          type: "jpeg",
-          quality: 30,
-          fullPage: true,
+      let price = await page.evaluate(() => {
+        try {
+          return document.querySelector("#book-price").innerText;
+        } catch {
+          return null;
+        }
+      });
+      if (!title) {
+        console.log(
+          "\x1b[31m%s\x1b[0m",
+          "Error - Broken Link: file " + json[i].Record
+        );
+        errorArray.push({
+          location: i,
+          file: json[i].Record,
+          error: "Broken Link",
         });
-        recordCt++;
-        console.log("Success: file", json[i].Record);
-      } else {
-        // console.log("Error - No Price: file", json[i].Record);
+      } else if (!price) {
         console.log(
           "\x1b[31m%s\x1b[0m",
           "Error - No Price: file " + json[i].Record
@@ -42,6 +47,15 @@ async function run() {
           file: json[i].Record,
           error: "No Price",
         });
+      } else {
+        await page.screenshot({
+          path: "file/file" + json[i].Record + ".jpeg",
+          type: "jpeg",
+          quality: 30,
+          fullPage: true,
+        });
+        recordCt++;
+        console.log("Success: file", json[i].Record);
       }
     } catch (err) {
       console.log(
