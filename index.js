@@ -13,17 +13,42 @@ async function run() {
   for (let i = 0; i < json.length; i++) {
     try {
       await page.goto(json[i].URL);
-      await page.screenshot({
-        path: "file/file" + json[i].Record + ".jpeg",
-        type: "jpeg",
-        quality: 30,
-        fullPage: true,
+      let data = await page.evaluate(() => {
+        try {
+          let price = document.querySelector("#book-price").innerText;
+          return price;
+        } catch {
+          return null;
+        }
       });
-      recordCt++;
-      console.log("Success: file", json[i].Record);
+      // console.log(data);
+      if (data) {
+        await page.screenshot({
+          path: "file/file" + json[i].Record + ".jpeg",
+          type: "jpeg",
+          quality: 30,
+          fullPage: true,
+        });
+        recordCt++;
+        console.log("Success: file", json[i].Record);
+      } else {
+        // console.log("Error - No Price: file", json[i].Record);
+        console.log(
+          "\x1b[31m%s\x1b[0m",
+          "Error - No Price: file " + json[i].Record
+        );
+        errorArray.push({
+          location: i,
+          file: json[i].Record,
+          error: "No Price",
+        });
+      }
     } catch (err) {
-      console.log("Error: file", json[i].Record);
-      errorArray.push({ location: i, file: json[i].Record });
+      console.log(
+        "\x1b[31m%s\x1b[0m",
+        "Error - Bad URL: file " + json[i].Record
+      );
+      errorArray.push({ location: i, file: json[i].Record, error: "Bad URL" });
     }
   }
   browser.close();
