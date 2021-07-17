@@ -33,7 +33,6 @@ async function run() {
           "Error - Broken Link: file " + json[i].Record
         );
         errorArray.push({
-          location: i,
           file: json[i].Record,
           error: "Broken Link",
         });
@@ -43,7 +42,6 @@ async function run() {
           "Error - No Price: file " + json[i].Record
         );
         errorArray.push({
-          location: i,
           file: json[i].Record,
           error: "No Price",
         });
@@ -62,7 +60,7 @@ async function run() {
         "\x1b[31m%s\x1b[0m",
         "Error - Bad URL: file " + json[i].Record
       );
-      errorArray.push({ location: i, file: json[i].Record, error: "Bad URL" });
+      errorArray.push({ file: json[i].Record, error: "Bad URL" });
     }
   }
   browser.close();
